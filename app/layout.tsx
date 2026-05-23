@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
+// @ts-ignore: side-effect import of CSS module without type declarations
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -22,7 +23,10 @@ export const metadata: Metadata = {
     default: "GradeIQ — Smart GPA & CGPA Calculator",
     template: "%s | GradeIQ",
   },
-  description:
+  other: {
+    "google-site-verification": "dzNoD3piukucCrDMMTLQkl2HYRH0mi4mdqoRMQHvqd0",
+  },
+ description: 
     "Free modern GPA, CGPA, and Goal GPA calculator for university students. Calculate your semester GPA and cumulative GPA accurately in seconds.",
   keywords: [
     "GPA calculator",
