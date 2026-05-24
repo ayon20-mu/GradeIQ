@@ -14,6 +14,7 @@ import {
 } from "@/lib/utils";
 import { CourseRow } from "@/components/CourseRow";
 import { CalculatorCard, TableHead } from "@/components/CalculatorCard";
+import { SaveToDashboard } from "@/components/SaveToDashboard";
 import { motion as m } from "framer-motion";
 
 const INITIAL: Semester[] = [
@@ -189,13 +190,18 @@ export function CGPACalculator() {
                         />
                       ))}
                     </AnimatePresence>
-                    <div className="px-4 py-3 border-t border-teal-50">
+                    <div className="px-4 py-3 border-t border-teal-50 flex items-center justify-between flex-wrap gap-3">
                       <button
                         onClick={() => addCourse(sem.id)}
                         className="text-teal-500 text-sm font-medium hover:text-teal-700 flex items-center gap-1 transition-colors"
                       >
                         <Plus size={14} /> Add course
                       </button>
+                      <SaveToDashboard
+                        semesterName={sem.name}
+                        gpa={semGPA}
+                        totalCredits={semCredits}
+                      />
                     </div>
                   </motion.div>
                 )}

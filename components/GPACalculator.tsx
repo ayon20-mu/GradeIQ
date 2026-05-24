@@ -12,6 +12,7 @@ import {
 import { ResultPanel } from "@/components/ResultPanel";
 import { CourseRow } from "@/components/CourseRow";
 import { CalculatorCard, TableHead } from "@/components/CalculatorCard";
+import { SaveToDashboard } from "@/components/SaveToDashboard";
 
 const INITIAL: Course[] = [
   { id: uid(), name: "", gradePoints: "", creditHours: 3 },
@@ -21,6 +22,7 @@ const INITIAL: Course[] = [
 
 export function GPACalculator() {
   const [courses, setCourses] = useState<Course[]>(INITIAL);
+  const [semesterName, setSemesterName] = useState("Semester 1");
 
   const updateCourse = useCallback(
     (id: string, field: keyof Course, value: string | number) => {
@@ -36,7 +38,10 @@ export function GPACalculator() {
   const removeCourse = (id: string) =>
     setCourses((prev) => prev.filter((c) => c.id !== id));
 
-  const reset = () => setCourses(INITIAL.map((c) => ({ ...c, id: uid(), name: "", gradePoints: "", creditHours: 3 })));
+  const reset = () => {
+    setCourses(INITIAL.map(() => ({ id: uid(), name: "", gradePoints: "" as const, creditHours: 3 })));
+    setSemesterName("Semester 1");
+  };
 
   const gpa = calcSemesterGPA(courses);
   const totalCredits = courses.reduce(
@@ -55,6 +60,20 @@ export function GPACalculator() {
         credits={totalCredits}
         courses={validCourses}
       />
+
+      {/* Semester name — used when saving to dashboard */}
+      <div className="flex items-center gap-3 bg-white border border-teal-100 rounded-2xl px-4 py-3 shadow-card">
+        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+          Semester Label
+        </label>
+        <input
+          type="text"
+          value={semesterName}
+          onChange={(e) => setSemesterName(e.target.value)}
+          placeholder="e.g. Semester 1"
+          className="flex-1 text-sm text-navy bg-transparent border-none outline-none placeholder:text-slate-300"
+        />
+      </div>
 
       <CalculatorCard>
         <TableHead cols={["Course Name", "Grade Points", "Credit Hours", ""]} />
@@ -81,6 +100,13 @@ export function GPACalculator() {
         >
           <Plus size={16} /> Add Course
         </motion.button>
+
+        <SaveToDashboard
+          semesterName={semesterName}
+          gpa={gpa}
+          totalCredits={totalCredits}
+        />
+
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

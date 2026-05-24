@@ -99,3 +99,31 @@ export function makeSemester(n: number): Semester {
 export function makeNeededSem(n: number): NeededSemester {
   return { id: uid(), name: `Semester ${n}`, expectedGPA: "", creditHours: 15 };
 }
+
+export function formatRelativeTime(ts: number): string {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60_000);
+  const hours = Math.floor(diff / 3_600_000);
+  const days = Math.floor(diff / 86_400_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 30) return `${days}d ago`;
+  return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+// ── Dashboard / persistence types ────────────────────────────────────────────
+
+export type SavedSemester = {
+  id: string;
+  name: string;
+  gpa: number;
+  totalCredits: number;
+  savedAt: number; // Date.now()
+};
+
+export type DashboardStore = {
+  userName: string;
+  targetGPA: number | null;
+  semesters: SavedSemester[];
+};

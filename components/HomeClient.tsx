@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -11,7 +12,9 @@ import {
   Zap,
   Shield,
   TrendingUp,
+  LayoutDashboard,
 } from "lucide-react";
+import { readStore } from "@/lib/store";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -60,6 +63,23 @@ const whys = [
 ];
 
 export function HomeClient() {
+  const [userName, setUserName] = useState("");
+  const [semCount, setSemCount] = useState(0);
+  const [cgpa, setCgpa] = useState<number | null>(null);
+
+  useEffect(() => {
+    const s = readStore();
+    setUserName(s.userName);
+    setSemCount(s.semesters.length);
+    if (s.semesters.length > 0) {
+      const totalGP = s.semesters.reduce((acc, sem) => acc + sem.gpa * sem.totalCredits, 0);
+      const totalCr = s.semesters.reduce((acc, sem) => acc + sem.totalCredits, 0);
+      setCgpa(totalCr > 0 ? totalGP / totalCr : null);
+    }
+  }, []);
+
+  const isReturning = !!userName;
+
   return (
     <div className="overflow-hidden">
       {/* Hero */}
@@ -75,16 +95,49 @@ export function HomeClient() {
         />
 
         <div className="max-w-4xl mx-auto text-center relative">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6"
-          >
-            <span className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse" />
-            Free GPA Calculator for University Students
-          </motion.div>
+
+          {/* Returning user banner */}
+          {isReturning && (
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-3 bg-white border border-teal-200 rounded-2xl px-5 py-3 mb-8 shadow-card"
+            >
+              <div className="w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center text-sm font-bold uppercase flex-shrink-0">
+                {userName.charAt(0)}
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-navy">
+                  Welcome back, {userName} 👋
+                </p>
+                <p className="text-xs text-slate-400">
+                  {semCount > 0
+                    ? `${semCount} semester${semCount > 1 ? "s" : ""} saved${cgpa !== null ? ` · CGPA ${cgpa.toFixed(2)}` : ""}`
+                    : "No semesters saved yet"}
+                </p>
+              </div>
+              <Link
+                href="/dashboard"
+                className="ml-2 flex items-center gap-1.5 px-3.5 py-1.5 bg-teal-500 text-white text-xs font-semibold rounded-full hover:bg-teal-600 transition-colors whitespace-nowrap"
+              >
+                <LayoutDashboard size={12} /> Dashboard
+              </Link>
+            </motion.div>
+          )}
+
+          {/* Badge — only for first-time visitors */}
+          {!isReturning && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6"
+            >
+              <span className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse" />
+              Free GPA Calculator for University Students
+            </motion.div>
+          )}
 
           <motion.h1
             variants={fadeUp}
@@ -115,18 +168,37 @@ export function HomeClient() {
             custom={3}
             className="flex flex-wrap items-center justify-center gap-4"
           >
-            <Link
-              href="/gpa"
-              className="inline-flex items-center gap-2 bg-teal-500 text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-teal-600 transition-all duration-200 shadow-teal hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              Calculate GPA <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/cgpa"
-              className="inline-flex items-center gap-2 bg-white text-teal-600 border border-teal-200 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-teal-50 transition-all duration-200"
-            >
-              Calculate CGPA
-            </Link>
+            {isReturning ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 bg-teal-500 text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-teal-600 transition-all duration-200 shadow-teal hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <LayoutDashboard size={16} /> Go to Dashboard
+                </Link>
+                <Link
+                  href="/cgpa"
+                  className="inline-flex items-center gap-2 bg-white text-teal-600 border border-teal-200 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-teal-50 transition-all duration-200"
+                >
+                  Add Semester <ArrowRight size={15} />
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/gpa"
+                  className="inline-flex items-center gap-2 bg-teal-500 text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-teal-600 transition-all duration-200 shadow-teal hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  Calculate GPA <ArrowRight size={16} />
+                </Link>
+                <Link
+                  href="/cgpa"
+                  className="inline-flex items-center gap-2 bg-white text-teal-600 border border-teal-200 px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-teal-50 transition-all duration-200"
+                >
+                  Calculate CGPA
+                </Link>
+              </>
+            )}
           </motion.div>
         </div>
       </section>
