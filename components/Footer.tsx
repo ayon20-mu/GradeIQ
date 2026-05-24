@@ -21,7 +21,7 @@ export function Footer() {
           </nav>
 
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} GradeIQ. Built for students.
+            © {new Date().getFullYear()} GradeIQ. Built for students. gradeiq25@gmail.com
           </p>
         </div>
       </div>
