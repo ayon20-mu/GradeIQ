@@ -18,6 +18,7 @@ export function Footer() {
             <Link href="/gpa" className="hover:text-teal-600 transition-colors">GPA Calculator</Link>
             <Link href="/cgpa" className="hover:text-teal-600 transition-colors">CGPA Calculator</Link>
             <Link href="/needed" className="hover:text-teal-600 transition-colors">Goal GPA</Link>
+            <Link href="/privacy-policy" className="hover:text-teal-600 transition-colors">Privacy Policy</Link>
           </nav>
 
           <p className="text-xs text-slate-400">
