@@ -8,9 +8,7 @@ export default function PrivacyPolicy() {
       <p>
         GradeIQ does not collect personal information.
         Basic analytics may be used to improve user experience.
-        Durjoy Chodna
-        Kaif Bainchod
-        Himardry Noti
+        
       </p>
     </main>
   );
