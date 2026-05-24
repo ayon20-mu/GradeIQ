@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -18,6 +18,8 @@ import {
   LayoutDashboard,
   ArrowRight,
   BookOpen,
+  Download,
+  Loader2,
 } from "lucide-react";
 import { useDashboard } from "@/lib/store";
 import { getLetterGrade, formatRelativeTime } from "@/lib/utils";
@@ -244,6 +246,22 @@ export function DashboardClient() {
   const [targetInput, setTargetInput] = useState("");
   const targetRef = useRef<HTMLInputElement>(null);
 
+  // PDF export state
+  const [exporting, setExporting] = useState<"idle" | "loading" | "done">("idle");
+
+  const handleExportPdf = useCallback(async () => {
+    setExporting("loading");
+    try {
+      const { exportDashboardPdf } = await import("@/lib/exportPdf");
+      await exportDashboardPdf(store);
+      setExporting("done");
+      setTimeout(() => setExporting("idle"), 2500);
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      setExporting("idle");
+    }
+  }, [store]);
+
   // First-visit: if no name set, show inline setup
   const isFirstVisit = hydrated && !store.userName;
 
@@ -306,7 +324,7 @@ export function DashboardClient() {
             </label>
             <input
               type="text"
-              placeholder="e.g. Sam"
+              placeholder="e.g. Ayon"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               onKeyDown={(e) => {
@@ -390,12 +408,47 @@ export function DashboardClient() {
           </p>
         </div>
 
-        <Link
-          href="/cgpa"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-500 text-white rounded-full text-sm font-semibold hover:bg-teal-600 transition-colors shadow-[0_4px_12px_rgba(0,150,136,.25)] hover:-translate-y-0.5"
-        >
-          <Plus size={15} /> Add Semester
-        </Link>
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Export PDF */}
+          {sems.length > 0 && (
+            <motion.button
+              whileHover={{ scale: exporting === "idle" ? 1.02 : 1 }}
+              whileTap={{ scale: exporting === "idle" ? 0.97 : 1 }}
+              onClick={handleExportPdf}
+              disabled={exporting !== "idle"}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                exporting === "done"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-white text-teal-600 border-teal-200 hover:bg-teal-50 hover:border-teal-300 shadow-sm"
+              } disabled:opacity-70 disabled:cursor-not-allowed`}
+              aria-label="Export dashboard as PDF"
+            >
+              {exporting === "loading" ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" />
+                  Generating…
+                </>
+              ) : exporting === "done" ? (
+                <>
+                  <Check size={15} />
+                  Downloaded!
+                </>
+              ) : (
+                <>
+                  <Download size={15} />
+                  Export PDF
+                </>
+              )}
+            </motion.button>
+          )}
+
+          <Link
+            href="/cgpa"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-500 text-white rounded-full text-sm font-semibold hover:bg-teal-600 transition-colors shadow-[0_4px_12px_rgba(0,150,136,.25)] hover:-translate-y-0.5"
+          >
+            <Plus size={15} /> Add Semester
+          </Link>
+        </div>
       </div>
 
       {/* ── Metric cards ── */}
