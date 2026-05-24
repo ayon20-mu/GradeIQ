@@ -27,7 +27,7 @@ export function CalculatorCard({ children, className }: CalculatorCardProps) {
 export function TableHead({ cols }: { cols: string[] }) {
   return (
     <div
-      className="grid px-4 py-3 bg-teal-50/60 border-b border-teal-100 text-xs font-semibold text-slate-400 uppercase tracking-wider"
+      className="hidden md:grid px-4 py-3 bg-teal-50/60 border-b border-teal-100 text-xs font-semibold text-slate-400 uppercase tracking-wider"
       style={{ gridTemplateColumns: `1fr 120px 110px 44px` }}
     >
       {cols.map((c) => (

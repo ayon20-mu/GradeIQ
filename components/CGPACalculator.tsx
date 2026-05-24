@@ -85,7 +85,7 @@ export function CGPACalculator() {
   return (
     <div className="space-y-5">
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
         {[
           { label: "Final CGPA", value: cgpa !== null ? cgpa.toFixed(2) : "—", accent: true },
           { label: "Total Credits", value: totalCredits, accent: false },
@@ -93,7 +93,7 @@ export function CGPACalculator() {
         ].map((m) => (
           <div
             key={m.label}
-            className={`rounded-2xl p-5 text-center border ${
+            className={`rounded-2xl p-3 sm:p-5 text-center border ${
               m.accent
                 ? "bg-gradient-to-br from-teal-500 to-teal-700 border-teal-600 text-white shadow-teal"
                 : "bg-white border-teal-100 shadow-card"
@@ -104,11 +104,11 @@ export function CGPACalculator() {
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
-              className={`font-serif text-3xl mb-1 ${m.accent ? "text-white" : "text-teal-600"}`}
+              className={`font-serif text-2xl sm:text-3xl mb-0.5 sm:mb-1 ${m.accent ? "text-white" : "text-teal-600"}`}
             >
               {m.value}
             </motion.div>
-            <div className={`text-xs font-semibold uppercase tracking-wider ${m.accent ? "text-teal-100" : "text-slate-400"}`}>
+            <div className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${m.accent ? "text-teal-100" : "text-slate-400"}`}>
               {m.label}
             </div>
           </div>
@@ -134,7 +134,7 @@ export function CGPACalculator() {
             >
               {/* Semester header */}
               <div
-                className="flex items-center gap-3 px-4 py-4 bg-teal-50/60 border-b border-teal-100 cursor-pointer select-none"
+                className="flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 bg-teal-50/60 border-b border-teal-100 cursor-pointer select-none"
                 onClick={() => toggleSemester(sem.id)}
               >
                 <input
@@ -144,22 +144,22 @@ export function CGPACalculator() {
                   onChange={(e) => updateSemesterName(sem.id, e.target.value)}
                   className="font-semibold text-navy bg-transparent border-none outline-none text-sm flex-1 min-w-0"
                 />
-                <span className="bg-teal-100 text-teal-700 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
-                  GPA: {semGPA !== null ? semGPA.toFixed(2) : "—"}
+                <span className="bg-teal-100 text-teal-700 text-xs font-bold px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
+                  {semGPA !== null ? semGPA.toFixed(2) : "—"}
                 </span>
-                <span className="text-slate-400 text-xs whitespace-nowrap">{semCredits} cr</span>
+                <span className="hidden sm:inline text-slate-400 text-xs whitespace-nowrap">{semCredits} cr</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     if (semesters.length > 1) removeSemester(sem.id);
                   }}
                   disabled={semesters.length <= 1}
-                  className="w-7 h-7 rounded-lg border border-red-100 bg-red-50 text-red-400 hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all"
+                  className="flex-shrink-0 w-7 h-7 rounded-lg border border-red-100 bg-red-50 text-red-400 hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all"
                   aria-label="Remove semester"
                 >
                   <Trash2 size={13} />
                 </button>
-                <div className="text-slate-400">
+                <div className="flex-shrink-0 text-slate-400">
                   {sem.isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </div>

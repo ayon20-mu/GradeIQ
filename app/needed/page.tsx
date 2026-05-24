@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 export default function NeededPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <div className="mb-8">
-        <h1 className="font-serif text-4xl text-navy mb-2">Goal GPA Calculator</h1>
-        <p className="text-slate-500">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="font-serif text-3xl sm:text-4xl text-navy mb-2">Goal GPA Calculator</h1>
+        <p className="text-slate-500 text-sm sm:text-base">
           Enter your current CGPA and remaining semesters to predict your final cumulative GPA.
         </p>
       </div>

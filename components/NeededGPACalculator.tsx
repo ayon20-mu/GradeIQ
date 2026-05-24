@@ -58,8 +58,8 @@ export function NeededGPACalculator() {
   return (
     <div className="space-y-5">
       {/* Result */}
-      <div className="bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-6 text-white shadow-teal">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-5 sm:p-6 text-white shadow-teal">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <p className="text-teal-100 text-sm font-medium mb-1">Predicted Final CGPA</p>
             <motion.div
@@ -67,7 +67,7 @@ export function NeededGPACalculator() {
               initial={{ scale: 0.88, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 280, damping: 20 }}
-              className="font-serif text-6xl leading-none"
+              className="font-serif text-5xl sm:text-6xl leading-none"
             >
               {predicted !== null ? predicted.toFixed(2) : "—"}
             </motion.div>
@@ -75,7 +75,7 @@ export function NeededGPACalculator() {
               <p className="text-teal-100 text-sm mt-2">{getLetterGrade(predicted)}</p>
             )}
           </div>
-          <div className="bg-white/15 rounded-xl px-4 py-3 text-center">
+          <div className="bg-white/15 rounded-xl px-4 py-3 text-center self-start sm:flex-shrink-0">
             <div className="text-lg font-bold">{remTotal.cr}</div>
             <div className="text-teal-100 text-xs mt-0.5">Rem. Credits</div>
           </div>
@@ -83,11 +83,11 @@ export function NeededGPACalculator() {
       </div>
 
       {/* Current info */}
-      <div className="bg-white rounded-2xl border border-teal-100 shadow-card p-6">
-        <h2 className="font-semibold text-navy text-sm mb-4 uppercase tracking-wide text-slate-400">
+      <div className="bg-white rounded-2xl border border-teal-100 shadow-card p-5 sm:p-6">
+        <h2 className="font-semibold text-sm mb-4 uppercase tracking-wide text-slate-400">
           Current Status
         </h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
               Current CGPA
@@ -121,7 +121,8 @@ export function NeededGPACalculator() {
 
       {/* Remaining semesters */}
       <div className="bg-white rounded-2xl border border-teal-100 shadow-card overflow-hidden">
-        <div className="grid grid-cols-[1fr_140px_110px_44px] gap-3 px-4 py-3 bg-teal-50/60 border-b border-teal-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        {/* Desktop-only table header */}
+        <div className="hidden sm:grid grid-cols-[1fr_140px_110px_44px] gap-3 px-4 py-3 bg-teal-50/60 border-b border-teal-100 text-xs font-semibold text-slate-400 uppercase tracking-wider">
           <span>Semester</span>
           <span>Expected GPA</span>
           <span>Credit Hours</span>
@@ -135,44 +136,101 @@ export function NeededGPACalculator() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="grid grid-cols-[1fr_140px_110px_44px] gap-3 px-4 py-3 border-b border-slate-100 last:border-b-0 items-center hover:bg-teal-50/20 transition-colors"
+              className="border-b border-slate-100 last:border-b-0 hover:bg-teal-50/20 transition-colors"
             >
-              <input
-                type="text"
-                placeholder={`Semester ${i + 1}`}
-                value={sem.name}
-                onChange={(e) => updateSem(sem.id, "name", e.target.value)}
-                className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all"
-              />
-              <input
-                type="number"
-                min={0}
-                max={4}
-                step={0.01}
-                placeholder="0.00–4.00"
-                value={sem.expectedGPA === "" ? "" : sem.expectedGPA}
-                onChange={(e) =>
-                  updateSem(sem.id, "expectedGPA", parseFloat(e.target.value) || "")
-                }
-                className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all text-center"
-              />
-              <input
-                type="number"
-                min={1}
-                placeholder="15"
-                value={sem.creditHours === "" ? "" : sem.creditHours}
-                onChange={(e) =>
-                  updateSem(sem.id, "creditHours", parseFloat(e.target.value) || "")
-                }
-                className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all text-center"
-              />
-              <button
-                onClick={() => removeSem(sem.id)}
-                disabled={remainingSems.length <= 1}
-                className="w-9 h-9 rounded-lg border border-red-100 bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
-              >
-                <Trash2 size={14} />
-              </button>
+              {/* Mobile: stacked */}
+              <div className="flex sm:hidden flex-col gap-2 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder={`Semester ${i + 1}`}
+                    value={sem.name}
+                    onChange={(e) => updateSem(sem.id, "name", e.target.value)}
+                    className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all"
+                  />
+                  <button
+                    onClick={() => removeSem(sem.id)}
+                    disabled={remainingSems.length <= 1}
+                    className="flex-shrink-0 w-9 h-9 rounded-lg border border-red-100 bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 pl-0.5">
+                      Expected GPA
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={4}
+                      step={0.01}
+                      placeholder="0.00–4.00"
+                      value={sem.expectedGPA === "" ? "" : sem.expectedGPA}
+                      onChange={(e) =>
+                        updateSem(sem.id, "expectedGPA", parseFloat(e.target.value) || "")
+                      }
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all text-center"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1 pl-0.5">
+                      Credit Hours
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="15"
+                      value={sem.creditHours === "" ? "" : sem.creditHours}
+                      onChange={(e) =>
+                        updateSem(sem.id, "creditHours", parseFloat(e.target.value) || "")
+                      }
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all text-center"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: single row */}
+              <div className="hidden sm:grid grid-cols-[1fr_140px_110px_44px] gap-3 px-4 py-3 items-center">
+                <input
+                  type="text"
+                  placeholder={`Semester ${i + 1}`}
+                  value={sem.name}
+                  onChange={(e) => updateSem(sem.id, "name", e.target.value)}
+                  className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all"
+                />
+                <input
+                  type="number"
+                  min={0}
+                  max={4}
+                  step={0.01}
+                  placeholder="0.00–4.00"
+                  value={sem.expectedGPA === "" ? "" : sem.expectedGPA}
+                  onChange={(e) =>
+                    updateSem(sem.id, "expectedGPA", parseFloat(e.target.value) || "")
+                  }
+                  className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all text-center"
+                />
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="15"
+                  value={sem.creditHours === "" ? "" : sem.creditHours}
+                  onChange={(e) =>
+                    updateSem(sem.id, "creditHours", parseFloat(e.target.value) || "")
+                  }
+                  className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-teal-400 transition-all text-center"
+                />
+                <button
+                  onClick={() => removeSem(sem.id)}
+                  disabled={remainingSems.length <= 1}
+                  className="w-9 h-9 rounded-lg border border-red-100 bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>

@@ -25,19 +25,19 @@ export function ResultPanel({
     <motion.div
       layout
       className={cn(
-        "bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-6 text-white shadow-teal",
+        "bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-5 sm:p-6 text-white shadow-teal",
         className
       )}
     >
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="min-w-0">
           <p className="text-teal-100 text-sm font-medium mb-1">{label}</p>
           <motion.div
             key={display}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="font-serif text-6xl leading-none"
+            className="font-serif text-5xl sm:text-6xl leading-none"
           >
             {display}
           </motion.div>
@@ -46,7 +46,7 @@ export function ResultPanel({
           )}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 sm:flex-shrink-0">
           {credits !== undefined && (
             <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[72px]">
               <div className="text-lg font-bold">{credits}</div>

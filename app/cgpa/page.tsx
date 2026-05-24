@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 export default function CGPAPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-8">
-        <h1 className="font-serif text-4xl text-navy mb-2">CGPA Calculator</h1>
-        <p className="text-slate-500">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="font-serif text-3xl sm:text-4xl text-navy mb-2">CGPA Calculator</h1>
+        <p className="text-slate-500 text-sm sm:text-base">
           Track your cumulative GPA across all semesters. Add courses to each semester for real-time GPA and CGPA.
         </p>
       </div>
