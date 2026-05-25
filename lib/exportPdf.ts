@@ -3,7 +3,7 @@
 // Transcript-style layout using jsPDF text primitives only.
 
 import type { DashboardStore } from "@/lib/utils";
-import { getLetterGrade, formatRelativeTime } from "@/lib/utils";
+import { getLetterGrade } from "@/lib/utils";
 
 // ── Page constants ────────────────────────────────────────────────────────────
 const PAGE_W  = 210;          // A4 mm
@@ -33,6 +33,7 @@ function trendLabel(semesters: DashboardStore["semesters"]): string {
 
 // ── Letter grade (short) ──────────────────────────────────────────────────────
 function shortGrade(gpa: number): string {
+
   if (gpa >= 3.7) return "A";
   if (gpa >= 3.3) return "A-";
   if (gpa >= 3.0) return "B+";
@@ -158,11 +159,11 @@ export async function exportDashboardPdf(store: DashboardStore): Promise<void> {
 
   row(
     `Cumulative GPA (CGPA):`,
-    cgpa !== null ? `${cgpa.toFixed(3)}  /  4.000` : "—"
+    cgpa !== null ? `${cgpa.toFixed(2)}  /  4.00` : "—"
   );
   row(
     `Academic Standing:`,
-    cgpa !== null ? getLetterGrade(cgpa) : "—"
+    cgpa !== null ? getLetterGrade(cgpa).split(" / ")[0] : "—"
   );
   row(
     `Performance Trend:`,
@@ -176,19 +177,7 @@ export async function exportDashboardPdf(store: DashboardStore): Promise<void> {
     `Total Credit Hours Earned:`,
     String(totalCredits)
   );
-  if (store.targetGPA) {
-    row(
-      `Target CGPA:`,
-      `${store.targetGPA.toFixed(2)}  —  ${
-        cgpa !== null && cgpa >= store.targetGPA
-          ? "Goal Achieved"
-          : cgpa !== null
-          ? `${(store.targetGPA - cgpa).toFixed(2)} pts remaining`
-          : "—"
-      }`
-    );
-  }
-
+  
   gap(2);
   rule(0.3);
   gap(7);
@@ -206,7 +195,6 @@ export async function exportDashboardPdf(store: DashboardStore): Promise<void> {
     const COL_GPA     = ML + 90;
     const COL_GRADE   = ML + 115;
     const COL_CREDITS = ML + 135;
-    const COL_SAVED   = MR;
 
     // Column header row
     doc.setFont("helvetica", "bold");
@@ -216,7 +204,6 @@ export async function exportDashboardPdf(store: DashboardStore): Promise<void> {
     doc.text("GPA",           COL_GPA,     y);
     doc.text("Grade",         COL_GRADE,   y);
     doc.text("Credits",       COL_CREDITS, y);
-    doc.text("Saved",         COL_SAVED,   y, { align: "right" });
     gap(3);
 
     // Thin rule under column headers
@@ -239,7 +226,6 @@ export async function exportDashboardPdf(store: DashboardStore): Promise<void> {
       doc.setTextColor(MID[0], MID[1], MID[2]);
       doc.text(shortGrade(sem.gpa),         COL_GRADE,   y);
       doc.text(String(sem.totalCredits),    COL_CREDITS, y);
-      doc.text(formatRelativeTime(sem.savedAt), COL_SAVED, y, { align: "right" });
 
       gap(6.5);
 
@@ -259,7 +245,7 @@ export async function exportDashboardPdf(store: DashboardStore): Promise<void> {
     doc.setFontSize(10);
     doc.setTextColor(BLACK[0], BLACK[1], BLACK[2]);
     doc.text("Cumulative GPA",                        COL_NAME,    y);
-    doc.text(cgpa !== null ? cgpa.toFixed(3) : "—",  COL_GPA,     y);
+    doc.text(cgpa !== null ? cgpa.toFixed(2) : "—",  COL_GPA,     y);
     doc.text(cgpa !== null ? shortGrade(cgpa) : "—", COL_GRADE,   y);
     doc.text(String(totalCredits),                    COL_CREDITS, y);
     gap(8);
