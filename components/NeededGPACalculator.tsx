@@ -1,18 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import { NeededSemester, makeNeededSem, uid, getLetterGrade } from "@/lib/utils";
+import { readStore } from "@/lib/store";
 
-const INITIAL_SEMS: NeededSemester[] = [
-  { id: uid(), name: "Semester N+1", expectedGPA: "", creditHours: 15 },
-];
+// Highest trailing integer across all saved semester names.
+function maxSavedNumber(): number {
+  if (typeof window === "undefined") return 0;
+  const { semesters } = readStore();
+  if (semesters.length === 0) return 0;
+  const nums = semesters.map((s) => {
+    const m = s.name.match(/(\d+)\s*$/);
+    return m ? parseInt(m[1], 10) : 0;
+  });
+  return Math.max(...nums);
+}
+
+function makeInitialNeeded(): NeededSemester[] {
+  const base = maxSavedNumber();
+  // If no saved data, fall back to a clearly labelled placeholder.
+  return [makeNeededSem(base + 1)];
+}
 
 export function NeededGPACalculator() {
   const [currentCGPA, setCurrentCGPA] = useState<string>("");
   const [completedCredits, setCompletedCredits] = useState<string>("");
-  const [remainingSems, setRemainingSems] = useState<NeededSemester[]>(INITIAL_SEMS);
+  // SSR-safe default; useEffect seeds the correct value after mount.
+  const [remainingSems, setRemainingSems] = useState<NeededSemester[]>([
+    makeNeededSem(1),
+  ]);
+
+  useEffect(() => {
+    setRemainingSems(makeInitialNeeded());
+  }, []);
 
   // Derived
   const curCGPA = parseFloat(currentCGPA) || 0;
@@ -31,9 +53,18 @@ export function NeededGPACalculator() {
   const curProgress = curCGPA > 0 ? Math.min(100, (curCGPA / 4) * 100) : 0;
 
   const addSem = () =>
-    setRemainingSems((prev) => [...prev, makeNeededSem(prev.length + 1)]);
+    setRemainingSems((prev) => {
+      const savedMax = maxSavedNumber();
+      const localMax = prev.reduce((max, s) => {
+        const m = s.name.match(/(\d+)\s*$/);
+        return m ? Math.max(max, parseInt(m[1], 10)) : max;
+      }, 0);
+      return [...prev, makeNeededSem(Math.max(savedMax, localMax) + 1)];
+    });
+
   const removeSem = (id: string) =>
     setRemainingSems((prev) => prev.filter((s) => s.id !== id));
+
   const updateSem = (
     id: string,
     field: keyof NeededSemester,
@@ -42,10 +73,11 @@ export function NeededGPACalculator() {
     setRemainingSems((prev) =>
       prev.map((s) => (s.id === id ? { ...s, [field]: value } : s))
     );
+
   const reset = () => {
     setCurrentCGPA("");
     setCompletedCredits("");
-    setRemainingSems(INITIAL_SEMS.map((s) => ({ ...s, id: uid(), expectedGPA: "", creditHours: 15 })));
+    setRemainingSems(makeInitialNeeded());
   };
 
   const getTag = (gpa: number) => {

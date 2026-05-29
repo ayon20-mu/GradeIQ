@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, RefreshCw, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import {
@@ -10,25 +10,57 @@ import {
   calcCGPA,
   makeSemester,
   makeCourse,
-  uid,
 } from "@/lib/utils";
 import { CourseRow } from "@/components/CourseRow";
 import { CalculatorCard, TableHead } from "@/components/CalculatorCard";
 import { SaveToDashboard } from "@/components/SaveToDashboard";
-import { motion as m } from "framer-motion";
+import { readStore } from "@/lib/store";
 
-const INITIAL: Semester[] = [
-  { id: uid(), name: "Semester 1", courses: [{ id: uid(), name: "", gradePoints: "", creditHours: 3 }], isOpen: true },
-];
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
+// Returns the highest trailing integer from all saved semester names.
+// "Semester 1" → 1, "Semester 12" → 12, unrecognised → 0.
+function maxSavedNumber(): number {
+  if (typeof window === "undefined") return 0;
+  const { semesters } = readStore();
+  if (semesters.length === 0) return 0;
+  const nums = semesters.map((s) => {
+    const m = s.name.match(/(\d+)\s*$/);
+    return m ? parseInt(m[1], 10) : 0;
+  });
+  return Math.max(...nums);
+}
+
+// Build a fresh single-semester state that starts after all saved data.
+function makeInitial(): Semester[] {
+  return [makeSemester(maxSavedNumber() + 1)];
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 export function CGPACalculator() {
-  const [semesters, setSemesters] = useState<Semester[]>(INITIAL);
+  // Start with a sensible SSR-safe default; useEffect corrects it after mount.
+  const [semesters, setSemesters] = useState<Semester[]>([makeSemester(1)]);
+
+  // After mount the browser has localStorage — re-seed with the correct number.
+  useEffect(() => {
+    setSemesters(makeInitial());
+  }, []);
 
   const { cgpa, totalCredits } = calcCGPA(semesters);
-  const totalCourses = semesters.reduce((s, sem) => s + sem.courses.length, 0);
 
+  // ── Mutations ──────────────────────────────────────────────────────────────
+
+  // Adds a semester whose number is above BOTH saved semesters AND in-session
+  // semesters — whichever is highest. This stays correct mid-session too.
   const addSemester = () =>
-    setSemesters((prev) => [...prev, makeSemester(prev.length + 1)]);
+    setSemesters((prev) => {
+      const savedMax = maxSavedNumber();
+      const localMax = prev.reduce((max, s) => {
+        const m = s.name.match(/(\d+)\s*$/);
+        return m ? Math.max(max, parseInt(m[1], 10)) : max;
+      }, 0);
+      return [...prev, makeSemester(Math.max(savedMax, localMax) + 1)];
+    });
 
   const removeSemester = (id: string) =>
     setSemesters((prev) => prev.filter((s) => s.id !== id));
@@ -78,11 +110,10 @@ export function CGPACalculator() {
       )
     );
 
-  const reset = () =>
-    setSemesters([
-      { id: uid(), name: "Semester 1", courses: [{ id: uid(), name: "", gradePoints: "", creditHours: 3 }], isOpen: true },
-    ]);
+  // Reset re-reads saved data so it always continues from the right number.
+  const reset = () => setSemesters(makeInitial());
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
       {/* Summary */}
@@ -118,7 +149,7 @@ export function CGPACalculator() {
 
       {/* Semester Cards */}
       <AnimatePresence initial={false}>
-        {semesters.map((sem, si) => {
+        {semesters.map((sem) => {
           const semGPA = calcSemesterGPA(sem.courses);
           const semCredits = sem.courses.reduce(
             (s, c) => s + (typeof c.creditHours === "number" ? c.creditHours : 0),
@@ -148,7 +179,9 @@ export function CGPACalculator() {
                 <span className="bg-teal-100 text-teal-700 text-xs font-bold px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                   {semGPA !== null ? semGPA.toFixed(2) : "—"}
                 </span>
-                <span className="hidden sm:inline text-slate-400 text-xs whitespace-nowrap">{semCredits} cr</span>
+                <span className="hidden sm:inline text-slate-400 text-xs whitespace-nowrap">
+                  {semCredits} cr
+                </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
