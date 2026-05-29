@@ -67,6 +67,7 @@ export function calcCGPA(semesters: Semester[]): {
 }
 
 export function getLetterGrade(gpa: number): string {
+  if (gpa >= 3.9) return "A+ / Perfect";
   if (gpa >= 3.7) return "A / Excellent";
   if (gpa >= 3.3) return "A- / Great";
   if (gpa >= 3.0) return "B+ / Good";
